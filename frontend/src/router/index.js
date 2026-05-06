@@ -1,20 +1,31 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import DefaultLayout from '../layouts/DefaultLayout.vue';
-import LeaveSystem from '../views/LeaveSystem.vue';
-
-const routes = [
-  {
-    path: '/',
-    component: DefaultLayout,
-    children: [
-      { path: '', component: LeaveSystem },
-    ],
-  },
-];
+import { createRouter, createWebHistory } from 'vue-router'
+import UserList from '../views/UserList.vue'
+import LeaveSystem from '../views/LeaveSystem.vue'
+import LeaveRecords from '../views/LeaveRecords.vue'
 
 const router = createRouter({
-  history: createWebHistory('/grnet_eip/'), // 對應 GitHub Pages 的路徑
-  routes,
-});
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      redirect: '/users' // 預設導向使用者列表
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: UserList
+    },
+    {
+      path: '/leave',
+      name: 'leave',
+      component: LeaveSystem
+    },
+    {
+      path: '/leave-records',
+      name: 'leave-records',
+      component: LeaveRecords
+    }
+  ]
+})
 
-export default router;
+export default router
