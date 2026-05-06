@@ -37,4 +37,21 @@
 3.  **客戶資料管理**
     *   客戶基本資料建立與聯絡維護。
 
+## 4. 版本控制 (Version Control)
+
+*   **GitHub Repository**：`https://github.com/fishtoyo/grnet_eip.git`
+*   **日常更新同步指令**：
+    1. `git add .` (將所有變更檔案加入暫存區)
+    2. `git commit -m "簡述這次新增或修改的功能"` (提交變更)
+    3. `git push` (推送到 GitHub 遠端資料庫)
+
+## 5. 專案目錄結構與啟動方式
+
+本專案採用前後端分離開發，但放置於同一個 Repository 管理：
+
+*   `/frontend`：前端 Vue 專案目錄
+    *   啟動方式：`cd frontend` -> `npm run dev`
+*   `/backend`：後端 Node.js (Express) 專案目錄
+    *   啟動方式：`cd backend` -> `node server.js`
+
 *(後續新功能與架構異動將依需求逐步新增於此文件中)*
