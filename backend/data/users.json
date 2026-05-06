@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "username": "admin_boss1",
+    "name": "老闆 A",
+    "role": "Admin",
+    "department": "Management"
+  },
+  {
+    "id": 2,
+    "username": "admin_boss2",
+    "name": "老闆 B",
+    "role": "Admin",
+    "department": "Management"
+  },
+  {
+    "id": 3,
+    "username": "staff_cs1",
+    "name": "客服 小美",
+    "role": "Staff",
+    "department": "Customer Service"
+  },
+  {
+    "id": 4,
+    "username": "staff_pm1",
+    "name": "企劃 小明",
+    "role": "Staff",
+    "department": "Planning"
+  },
+  {
+    "id": 5,
+    "username": "staff_design1",
+    "name": "設計 小華",
+    "role": "Staff",
+    "department": "Design"
+  },
+  {
+    "id": 6,
+    "username": "staff_front1",
+    "name": "前端 小強",
+    "role": "Staff",
+    "department": "Frontend"
+  },
+  {
+    "id": 7,
+    "username": "staff_back1",
+    "name": "後端 小剛",
+    "role": "Staff",
+    "department": "Backend"
+  }
+]

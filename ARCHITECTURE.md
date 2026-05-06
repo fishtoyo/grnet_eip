@@ -55,3 +55,18 @@
     *   啟動方式：`cd backend` -> `node server.js`
 
 *(後續新功能與架構異動將依需求逐步新增於此文件中)*
+
+## 6. 開發規範與專案日記
+
+### 開發規範
+1. **目錄建立規則 (嚴格遵守)**：若開發步驟中需要「新增資料夾」，AI 助手會優先暫停所有後續動作與程式碼生成，並請開發者先手動把資料夾建立完成。待開發者確認建立後，才會接著提供下一步驟。
+2. **樣式開發規則**：本專案為 Vue 與 Tailwind CSS 搭配，所有的畫面佈局與樣式一律優先使用 Tailwind CSS 處理，並**需使用 Tailwind CSS 最新版本寫法**。盡量避免額外撰寫自訂的 CSS（即盡量保持 `.vue` 檔內無 `<style>` 區塊或維持最少自訂樣式）。
+
+### UI 設計規範 (Design System)
+1. **內頁版面 (Layout)**：預設內頁採滿版寬設計，外層容器統一標準樣式：`bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 min-h-[calc(100vh-4rem)]`。
+2. **按鈕元件 (Buttons)**：統一形狀、間距與互動效果，基礎樣式為 `px-5 py-2.5 font-medium rounded-lg transition-colors shadow-sm`。依主次要行為更換顏色（例如主要：`bg-gray-800 text-white`，次要/返回：`bg-gray-100 text-gray-700`）。
+3. **列表呈現 (Lists)**：資料條目摒棄卡片式 (Card) 造型，改採滿版橫列 (Row) 佈局，條目間以底線 (`border-b border-gray-100`) 分隔，並加上 `hover:bg-gray-50` 提升互動感。
+4. **響應式設計 (RWD)**：所有畫面佈局與元件皆須搭配 RWD 處理，確保在手機 (Mobile)、平板 (Tablet) 與電腦 (Desktop) 等不同尺寸螢幕下皆能維持良好的閱讀體驗與操作性（善用 Tailwind 的 sm:, md:, lg: 等斷點）。
+
+### 專案日記
+* **2026-05-06**：完成開發環境的基礎建置與除錯。前端 (Vue + Vite) 與後端 (Node.js + Express) 分離架構成功啟動且互不衝突。修復了 Vue Router 元件路徑解析錯誤。完成「差勤請假系統」行事曆視圖與「我的請假紀錄」列表介面實作，確立全站 UI 設計規範（滿版寬容器、統一按鈕與表單樣式、扁平化橫列排版），並套用 Tailwind CSS 最新版本寫法。引入全站 RWD 響應式支援，包含側邊欄折疊與手機版排版優化。
