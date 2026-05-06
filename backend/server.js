@@ -24,6 +24,12 @@ const readData = (filename) => {
   }
 };
 
+// 輔助函式：寫入 JSON 假資料
+const writeData = (filename, data) => {
+  const filePath = path.join(__dirname, 'data', filename);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+};
+
 // --- API 路由 ---
 
 // 測試 API 是否正常運行
@@ -35,6 +41,27 @@ app.get('/api', (req, res) => {
 app.get('/api/users', (req, res) => {
   const users = readData('users.json');
   res.json(users);
+});
+
+// 新增請假單 API
+app.post('/api/leave-requests', (req, res) => {
+  try {
+    const newRequest = req.body;
+    const requests = readData('leaveRequests.json');
+    
+    // 為新假單產生唯一的 ID (這裡使用當下時間戳)
+    newRequest.id = Date.now();
+    // 強制設定初始狀態為審核中
+    newRequest.status = 'pending';
+    newRequest.statusName = '審核中';
+    
+    requests.push(newRequest);
+    writeData('leaveRequests.json', requests);
+    
+    res.status(201).json({ message: '請假申請已成功送出', data: newRequest });
+  } catch (error) {
+    res.status(500).json({ message: '伺服器錯誤，無法儲存請假單' });
+  }
 });
 
 // 啟動伺服器
