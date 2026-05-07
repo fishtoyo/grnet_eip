@@ -43,6 +43,18 @@ app.get('/api/users', (req, res) => {
   res.json(users);
 });
 
+// 取得所有請假單
+app.get('/api/leave-requests', (req, res) => {
+  const requests = readData('leaveRequests.json');
+  res.json(requests);
+});
+
+// 取得行事曆排程事件
+app.get('/api/calendar-events', (req, res) => {
+  const events = readData('calendarEvents.json');
+  res.json(events);
+});
+
 // 新增請假單 API
 app.post('/api/leave-requests', (req, res) => {
   try {
@@ -54,6 +66,11 @@ app.post('/api/leave-requests', (req, res) => {
     // 強制設定初始狀態為審核中
     newRequest.status = 'pending';
     newRequest.statusName = '審核中';
+    // 補上名稱 (前端尚未有狀態管理，暫時寫死以利測試)
+    newRequest.name = '目前測試帳號';
+    // 轉換中文假別名稱
+    const typeMapping = { 'personal': '事假', 'sick': '病假', 'annual': '特別休假', 'official': '公假' };
+    newRequest.typeName = typeMapping[newRequest.type] || newRequest.type;
     
     requests.push(newRequest);
     writeData('leaveRequests.json', requests);
