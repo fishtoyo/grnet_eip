@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -69,21 +69,33 @@ const isCurrentMonthView = computed(() => {
   return currentYear.value === today.getFullYear() && currentMonth.value === today.getMonth()
 })
 
-// 模擬所有人已排定的請假資料 (用以顯示在行事曆上)
-const allScheduledLeaves = ref([
-  { date: '2026-05-08', isAllDay: false, startTime: '09:30', endTime: '10:30', name: '老闆 A', type: '事假', status: 'approved', reason: '辦理銀行私人事務' },
-  { date: '2026-05-08', isAllDay: false, startTime: '14:00', endTime: '14:30', name: '老闆 A', type: '事假', status: 'approved', reason: '外出處理帳務' },
-  { date: '2026-05-08', isAllDay: true, name: '小美', type: '病假', status: 'approved', reason: '身體不適' },
-  { date: '2026-05-08', isAllDay: true, name: '企劃 B', type: '特別休假', status: 'approved', reason: '家庭旅遊' },
-  { date: '2026-05-08', isAllDay: false, startTime: '10:00', endTime: '12:00', name: '設計 C', type: '事假', status: 'pending', reason: '處理私事' },
-  { date: '2026-05-08', isAllDay: true, name: '前端 D', type: '公假', status: 'approved', reason: '外部教育訓練' },
-  { date: '2026-05-15', isAllDay: true, name: '小美', type: '病假', status: 'approved', reason: '感冒發燒，在家休養' },
-  { date: '2026-05-20', isAllDay: false, startTime: '13:00', endTime: '17:00', name: '老闆 A', type: '事假', status: 'pending', reason: '需至戶政事務所辦理文件' },
-])
+// 接收後端排定的請假資料 (API)
+const allScheduledLeaves = ref([])
+
+const fetchLeaves = async () => {
+  const localData = localStorage.getItem('grnet_leave_requests')
+  if (localData) {
+    allScheduledLeaves.value = JSON.parse(localData)
+  } else {
+    try {
+      const res = await fetch(import.meta.env.BASE_URL + 'api/leaveRequests.json')
+      const data = await res.json()
+      allScheduledLeaves.value = data
+      localStorage.setItem('grnet_leave_requests', JSON.stringify(data))
+    } catch (error) {
+      console.error('無法載入預設請假紀錄', error)
+    }
+  }
+}
+
+onMounted(() => fetchLeaves())
 
 // 取得某一天對應的請假紀錄
 const getLeavesForDate = (dateString) => {
-  return allScheduledLeaves.value.filter(leave => leave.date === dateString)
+  // 改為支援「多天跨區間」比對邏輯：只要該日期落在請假的 startDate 與 endDate 之間，就會顯示！
+  return allScheduledLeaves.value.filter(leave => {
+    return dateString >= leave.startDate && dateString <= leave.endDate
+  })
 }
 
 // --- 填寫假單表單邏輯 ---
@@ -118,14 +130,31 @@ const closeFormModal = () => {
 }
 
 // 處理表單送出
-const submitLeaveRequest = () => {
-  console.log('送出請假申請:', leaveForm)
-  if (leaveForm.isAllDay) {
-    alert(`已送出 ${leaveForm.startDate} 至 ${leaveForm.endDate} (全天) 的請假申請！`)
-  } else {
-    alert(`已送出 ${leaveForm.startDate} 的 ${leaveForm.startTime} 至 ${leaveForm.endTime} 申請！`)
+const submitLeaveRequest = async () => {
+  // 表單防呆驗證：結束時間/日期不能早於開始時間/日期
+  if (leaveForm.startDate > leaveForm.endDate) {
+    return alert('錯誤：結束日期不能早於開始日期！')
   }
+  if (!leaveForm.isAllDay && leaveForm.startDate === leaveForm.endDate && leaveForm.startTime >= leaveForm.endTime) {
+    return alert('錯誤：結束時間必須晚於開始時間！')
+  }
+
+  // 模擬後端 POST 行為，寫入 localStorage
+  const newRequest = { ...leaveForm }
+  newRequest.id = Date.now()
+  newRequest.status = 'pending'
+  newRequest.statusName = '審核中'
+  newRequest.name = '目前測試帳號'
+  const typeMapping = { 'personal': '事假', 'sick': '病假', 'annual': '特別休假', 'official': '公假' }
+  newRequest.typeName = typeMapping[newRequest.type] || newRequest.type
+
+  const currentRequests = JSON.parse(localStorage.getItem('grnet_leave_requests')) || []
+  currentRequests.push(newRequest)
+  localStorage.setItem('grnet_leave_requests', JSON.stringify(currentRequests))
+
+  alert('請假申請已成功送出！')
   closeFormModal()
+  fetchLeaves() // 送出成功後，重新抓取資料讓行事曆立即更新畫面！
 }
 
 // --- 檢視請假明細邏輯 ---

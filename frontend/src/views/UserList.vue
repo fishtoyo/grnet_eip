@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 
 const users = ref([])
 const loading = ref(true)
@@ -8,11 +7,10 @@ const error = ref(null)
 
 const fetchUsers = async () => {
   try {
-    // 呼叫後端 API
-    const response = await axios.get('http://localhost:3000/api/users')
-    users.value = response.data
+    const res = await fetch(import.meta.env.BASE_URL + 'api/users.json')
+    users.value = await res.json()
   } catch (err) {
-    error.value = '無法載入使用者資料，請確認後端伺服器 (port 3000) 是否已啟動。'
+    error.value = '無法載入使用者資料'
     console.error(err)
   } finally {
     loading.value = false

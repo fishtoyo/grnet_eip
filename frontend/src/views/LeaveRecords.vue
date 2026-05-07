@@ -1,24 +1,44 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-// 模擬我的請假紀錄 (假資料)
-const leaveRecords = ref([
-  { id: 1, typeName: '特別休假', isAllDay: true, startDate: '2026-04-01', endDate: '2026-04-02', status: 'approved', statusName: '已核准', reason: '家庭旅遊' },
-  { id: 2, typeName: '病假', isAllDay: true, startDate: '2026-03-15', endDate: '2026-03-15', status: 'approved', statusName: '已核准', reason: '感冒發燒，至診所就醫休養' },
-  { id: 3, typeName: '事假', isAllDay: false, startDate: '2026-05-20', startTime: '09:30', endTime: '10:30', status: 'pending', statusName: '審核中', reason: '需至戶政事務所辦理私人事務' },
-  { id: 4, typeName: '事假', isAllDay: false, startDate: '2026-05-08', startTime: '14:00', endTime: '16:00', status: 'approved', statusName: '已核准', reason: '辦理銀行私人事務' },
-  { id: 5, typeName: '病假', isAllDay: true, startDate: '2026-05-15', endDate: '2026-05-15', status: 'approved', statusName: '已核准', reason: '身體不適，請假休息' },
-  { id: 6, typeName: '公假', isAllDay: true, startDate: '2026-04-10', endDate: '2026-04-10', status: 'approved', statusName: '已核准', reason: '參加外部教育訓練課程' },
-  { id: 7, typeName: '特別休假', isAllDay: true, startDate: '2026-06-15', endDate: '2026-06-17', status: 'pending', statusName: '審核中', reason: '個人休假安排' },
-  { id: 8, typeName: '事假', isAllDay: false, startDate: '2026-02-20', startTime: '10:00', endTime: '12:00', status: 'approved', statusName: '已核准', reason: '處理家中突發狀況' },
-  { id: 9, typeName: '公假', isAllDay: true, startDate: '2026-02-25', endDate: '2026-02-26', status: 'approved', statusName: '已核准', reason: '代表公司南下出差參展' },
-  { id: 10, typeName: '病假', isAllDay: true, startDate: '2026-01-05', endDate: '2026-01-06', status: 'approved', statusName: '已核准', reason: '腸胃炎就醫' },
-  { id: 11, typeName: '特別休假', isAllDay: true, startDate: '2025-12-29', endDate: '2025-12-31', status: 'approved', statusName: '已核准', reason: '年底出國跨年' },
-  { id: 12, typeName: '事假', isAllDay: false, startDate: '2025-11-12', startTime: '15:00', endTime: '16:30', status: 'approved', statusName: '已核准', reason: '處理私人稅務' },
-  { id: 13, typeName: '特別休假', isAllDay: true, startDate: '2025-10-08', endDate: '2025-10-09', status: 'approved', statusName: '已核准', reason: '國慶連假前排休' },
-  { id: 14, typeName: '病假', isAllDay: true, startDate: '2025-09-15', endDate: '2025-09-15', status: 'approved', statusName: '已核准', reason: '牙痛請假' },
-  { id: 15, typeName: '事假', isAllDay: true, startDate: '2026-06-25', endDate: '2026-06-25', status: 'pending', statusName: '審核中', reason: '個人私事處理' },
-])
+// 接收後端請假紀錄 (API)
+const leaveRecords = ref([])
+
+const defaultLeaves = [
+  { id: 1, name: "設計 E", type: "annual", typeName: "特別休假", isAllDay: true, startDate: "2026-05-01", endDate: "2026-05-02", startTime: "09:00", endTime: "18:00", status: "approved", statusName: "已核准", reason: "家庭旅遊" },
+  { id: 2, name: "客服 D", type: "personal", typeName: "事假", isAllDay: false, startDate: "2026-05-05", endDate: "2026-05-05", startTime: "09:00", endTime: "12:00", status: "approved", statusName: "已核准", reason: "處理私事" },
+  { id: 3, name: "老闆 A", type: "personal", typeName: "事假", isAllDay: false, startDate: "2026-05-08", endDate: "2026-05-08", startTime: "14:00", endTime: "16:00", status: "approved", statusName: "已核准", reason: "辦理銀行私人事務" },
+  { id: 4, name: "設計 E", type: "personal", typeName: "事假", isAllDay: false, startDate: "2026-05-08", endDate: "2026-05-08", startTime: "10:00", endTime: "12:00", status: "pending", statusName: "審核中", reason: "外出辦事" },
+  { id: 5, name: "會計 B", type: "annual", typeName: "特別休假", isAllDay: true, startDate: "2026-05-12", endDate: "2026-05-12", startTime: "09:00", endTime: "18:00", status: "approved", statusName: "已核准", reason: "個人休假" },
+  { id: 6, name: "企劃 C", type: "sick", typeName: "病假", isAllDay: true, startDate: "2026-05-15", endDate: "2026-05-15", startTime: "09:00", endTime: "18:00", status: "approved", statusName: "已核准", reason: "感冒發燒，至診所就醫休養" },
+  { id: 7, name: "前端 F", type: "sick", typeName: "病假", isAllDay: true, startDate: "2026-05-18", endDate: "2026-05-18", startTime: "09:00", endTime: "18:00", status: "approved", statusName: "已核准", reason: "身體不適，請假休息" },
+  { id: 8, name: "老闆 A", type: "personal", typeName: "事假", isAllDay: false, startDate: "2026-05-20", endDate: "2026-05-20", startTime: "09:30", endTime: "10:30", status: "pending", statusName: "審核中", reason: "需至戶政事務所辦理私人事務" },
+  { id: 9, name: "後端 G", type: "official", typeName: "公假", isAllDay: true, startDate: "2026-05-22", endDate: "2026-05-22", startTime: "09:00", endTime: "18:00", status: "approved", statusName: "已核准", reason: "參加外部教育訓練課程" },
+  { id: 10, name: "企劃 C", type: "annual", typeName: "特別休假", isAllDay: true, startDate: "2026-05-27", endDate: "2026-05-28", startTime: "09:00", endTime: "18:00", status: "pending", statusName: "審核中", reason: "個人休假安排" }
+]
+
+onMounted(async () => {
+  const localData = localStorage.getItem('grnet_leave_requests')
+  const parsedData = localData ? JSON.parse(localData) : []
+
+  if (parsedData && parsedData.length > 0) {
+    leaveRecords.value = parsedData
+  } else {
+    try {
+      const res = await fetch(import.meta.env.BASE_URL + 'api/leaveRequests.json')
+      if (res.ok) {
+        const data = await res.json()
+        leaveRecords.value = data.length ? data : defaultLeaves
+      } else {
+        leaveRecords.value = defaultLeaves
+      }
+    } catch (error) {
+      console.warn('無法載入 JSON，使用內建靜態請假資料')
+      leaveRecords.value = defaultLeaves
+    }
+    localStorage.setItem('grnet_leave_requests', JSON.stringify(leaveRecords.value))
+  }
+})
 
 // 將紀錄依據「年月」分組，並依照日期由新到舊排序
 const groupedRecords = computed(() => {
