@@ -2,6 +2,8 @@
 
 這是一個公司內部使用的企業資訊入口網站 (EIP) 專案。
 
+👉 **[點此查看線上測試展示 (Live Demo)](https://fishtoyo.github.io/grnet_eip/)**
+
 [查看詳細技術架構文件 (ARCHITECTURE.md)](./ARCHITECTURE.md)
 
 ---
